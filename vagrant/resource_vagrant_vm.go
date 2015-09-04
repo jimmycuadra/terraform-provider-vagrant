@@ -99,7 +99,7 @@ func resourceVagrantVm() *schema.Resource {
 						},
 
 						// private_network and public_network
-						"dhcp": &schema.Schema{
+						"ip": &schema.Schema{
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "The static IP to assign the interface on the host. Do not set this to use DHCP instead.",
