@@ -6,6 +6,11 @@ import (
 
 func resourceVagrantVm() *schema.Resource {
 	return &schema.Resource{
+		Create: resourceVagrantVmCreate,
+		Read:   resourceVagrantVmRead,
+		Update: resourceVagrantVmUpdate,
+		Delete: resourceVagrantVmDelete,
+
 		Schema: map[string]*schema.Schema{
 			"boot_timeout": &schema.Schema{
 				Type:        schema.TypeInt,
@@ -49,6 +54,78 @@ func resourceVagrantVm() *schema.Resource {
 				Optional:    true,
 				Description: "The hostname the machine should have.",
 			},
+			"networks": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": &schema.Schema{
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The type of network, one of `forwarded_port`, `private_network`, or `public_network`.",
+						},
+
+						// forwarded_port
+						"guest": &schema.Schema{
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The port on the guest you want to be exposed on the host.",
+						},
+						"guest_ip": &schema.Schema{
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The IP the forwarded port should be bound to within the guest.",
+						},
+						"host": &schema.Schema{
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The port on the host used to access the port on the guest.",
+						},
+						"host_ip": &schema.Schema{
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The IP the forwarded port should be bound to on the host.",
+						},
+						"protocol": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The network protcol to use, one of `tcp` or `udp`.",
+						},
+						"auto_correct": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Whether or not to automatically resolve port collisions on the host.",
+						},
+
+						// private_network and public_network
+						"dhcp": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The static IP to assign the interface on the host. Do not set this to use DHCP instead.",
+						},
+					},
+				},
+				Set: func(v interface{}) int {
+					return 0
+				},
+			},
 		},
 	}
+}
+
+func resourceVagrantVmCreate(data *schema.ResourceData, meta interface{}) error {
+	return nil
+}
+
+func resourceVagrantVmRead(data *schema.ResourceData, meta interface{}) error {
+	return nil
+}
+
+func resourceVagrantVmUpdate(data *schema.ResourceData, meta interface{}) error {
+	return nil
+}
+
+func resourceVagrantVmDelete(data *schema.ResourceData, meta interface{}) error {
+	return nil
 }

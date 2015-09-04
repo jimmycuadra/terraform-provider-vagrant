@@ -5,3 +5,12 @@ test:
 
 fmt:
 	go fmt $(FILES)
+
+install:
+	go install
+
+plan:
+	terraform plan
+
+apply:
+	terraform apply
