@@ -1,12 +1,12 @@
 FILES ?= ./...
 
-test:
+test: fmt
 	go test $(FILES) -parallel=4
 
 fmt:
 	go fmt $(FILES)
 
-install:
+install: fmt
 	go install
 
 plan:

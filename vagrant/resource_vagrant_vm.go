@@ -1,6 +1,8 @@
 package vagrant
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -15,7 +17,7 @@ func resourceVagrantVm() *schema.Resource {
 			"boot_timeout": &schema.Schema{
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     300,
+				Computed:    true,
 				Description: "The time in seconds that Vagrant will wait for the machine to boot.",
 			},
 			"box": &schema.Schema{
@@ -26,7 +28,7 @@ func resourceVagrantVm() *schema.Resource {
 			"box_check_update": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     true,
+				Computed:    true,
 				Description: "Whether or not to check for updates to the box on each `vagrant up`.",
 			},
 			"box_download_checksum": &schema.Schema{
@@ -38,6 +40,20 @@ func resourceVagrantVm() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The type of checksum specified by `box_download_checksum`. Should be `md5`, `sha1`, or `sha256`.",
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					value := v.(string)
+					valid_values := []string{"md5", "sha1", "sha256"}
+
+					for _, valid_value := range valid_values {
+						if value == valid_value {
+							return
+						}
+					}
+
+					errors = append(errors, fmt.Errorf("%q must be one of md5, sha1, or sha256", k))
+
+					return
+				},
 			},
 			"box_url": &schema.Schema{
 				Type:        schema.TypeString,
@@ -54,55 +70,82 @@ func resourceVagrantVm() *schema.Resource {
 				Optional:    true,
 				Description: "The hostname the machine should have.",
 			},
-			"networks": &schema.Schema{
+			"forwarded_port": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"type": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The type of network, one of `forwarded_port`, `private_network`, or `public_network`.",
-						},
-
-						// forwarded_port
 						"guest": &schema.Schema{
 							Type:        schema.TypeInt,
-							Optional:    true,
+							Required:    true,
 							Description: "The port on the guest you want to be exposed on the host.",
 						},
 						"guest_ip": &schema.Schema{
 							Type:        schema.TypeInt,
 							Optional:    true,
+							Computed:    true,
 							Description: "The IP the forwarded port should be bound to within the guest.",
 						},
 						"host": &schema.Schema{
 							Type:        schema.TypeInt,
-							Optional:    true,
+							Required:    true,
 							Description: "The port on the host used to access the port on the guest.",
 						},
 						"host_ip": &schema.Schema{
 							Type:        schema.TypeInt,
 							Optional:    true,
+							Computed:    true,
 							Description: "The IP the forwarded port should be bound to on the host.",
 						},
 						"protocol": &schema.Schema{
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: "The network protcol to use, one of `tcp` or `udp`.",
 						},
 						"auto_correct": &schema.Schema{
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Computed:    true,
 							Description: "Whether or not to automatically resolve port collisions on the host.",
 						},
-
-						// private_network and public_network
-						"ip": &schema.Schema{
+					},
+				},
+				Set: func(v interface{}) int {
+					return 0
+				},
+			},
+			"private_network": resourceVagrantVmPublicOrPrivateNetwork(),
+			"public_network":  resourceVagrantVmPublicOrPrivateNetwork(),
+			"virtualbox_provider": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": &schema.Schema{
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The static IP to assign the interface on the host. Do not set this to use DHCP instead.",
+							Computed:    true,
+							Description: "A custom name for the VM within VirtualBox's GUI app.",
+						},
+						"gui": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "Whether or not to create a VM with a GUI.",
+						},
+
+						"memory": &schema.Schema{
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The amount of memory to give the VM, in MB.",
+						},
+						"cpus": &schema.Schema{
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The number of CPUs to give the VM.",
 						},
 					},
 				},
@@ -128,4 +171,34 @@ func resourceVagrantVmUpdate(data *schema.ResourceData, meta interface{}) error 
 
 func resourceVagrantVmDelete(data *schema.ResourceData, meta interface{}) error {
 	return nil
+}
+
+func resourceVagrantVmPublicOrPrivateNetwork() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeSet,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"auto_config": &schema.Schema{
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Whether or not to automatically configure the network interface.",
+				},
+				"dhcp": &schema.Schema{
+					Type:        schema.TypeBool,
+					Computed:    true,
+					Description: "Whether or not to use DHCP to assign the IP on the host.",
+				},
+				"ip": &schema.Schema{
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					Description: "The static IP to assign the interface on the host. Do not set this to use DHCP instead.",
+				},
+			},
+		},
+		Set: func(v interface{}) int {
+			return 0
+		},
+	}
 }
