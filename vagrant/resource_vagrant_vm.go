@@ -55,6 +55,31 @@ func resourceVagrantVm() *schema.Resource {
 					return
 				},
 			},
+			"box_download_client_cert": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Path to a client certificate to use.",
+			},
+			"box_download_ca_cert": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Path to a certificate authority certificate bundle to use.",
+			},
+			"box_download_ca_path": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Path to a directory containing certificate authority certificates to use.",
+			},
+			"box_download_insecure": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Whether or not to skip verification of digital certificates.",
+			},
+			"box_download_location_trusted": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Whether or not to allow authentication credentials to be used for subsequent HTTP requests when redirected.",
+			},
 			"box_url": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -64,6 +89,32 @@ func resourceVagrantVm() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The version of the box to use.",
+			},
+			"communicator": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "How to connect to the guest box.",
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					value := v.(string)
+
+					if value == "ssh" || value == "winrm" {
+						return
+					}
+
+					errors = append(errors, fmt.Errorf("%q must be ssh or winrm", k))
+
+					return
+				},
+			},
+			"graceful_halt_timeout": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "The time in seconds to wait when `vagrant halt` is called.",
+			},
+			"guest": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The operating system that will be running in the guest box.",
 			},
 			"hostname": &schema.Schema{
 				Type:        schema.TypeString,
@@ -115,8 +166,23 @@ func resourceVagrantVm() *schema.Resource {
 					return 0
 				},
 			},
+			"post_up_message": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A message to display after `vagrant up` completes.",
+			},
 			"private_network": resourceVagrantVmPublicOrPrivateNetwork(),
 			"public_network":  resourceVagrantVmPublicOrPrivateNetwork(),
+			"usable_port_range_lower_bound": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "The lower end (inclusive) of the port range to use for handling port collisions.",
+			},
+			"usable_port_range_upper_bound": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "The upper end (inclusive) of the port range to use for handling port collisions.",
+			},
 			"virtualbox_provider": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
