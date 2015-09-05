@@ -75,6 +75,12 @@ func resourceVagrantVm() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"auto_correct": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "Whether or not to automatically resolve port collisions on the host.",
+						},
 						"guest": &schema.Schema{
 							Type:        schema.TypeInt,
 							Required:    true,
@@ -103,12 +109,6 @@ func resourceVagrantVm() *schema.Resource {
 							Computed:    true,
 							Description: "The network protcol to use, one of `tcp` or `udp`.",
 						},
-						"auto_correct": &schema.Schema{
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Computed:    true,
-							Description: "Whether or not to automatically resolve port collisions on the host.",
-						},
 					},
 				},
 				Set: func(v interface{}) int {
@@ -122,11 +122,11 @@ func resourceVagrantVm() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
-							Type:        schema.TypeString,
+						"cpus": &schema.Schema{
+							Type:        schema.TypeInt,
 							Optional:    true,
 							Computed:    true,
-							Description: "A custom name for the VM within VirtualBox's GUI app.",
+							Description: "The number of CPUs to give the VM.",
 						},
 						"gui": &schema.Schema{
 							Type:        schema.TypeBool,
@@ -134,18 +134,17 @@ func resourceVagrantVm() *schema.Resource {
 							Computed:    true,
 							Description: "Whether or not to create a VM with a GUI.",
 						},
-
 						"memory": &schema.Schema{
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Computed:    true,
 							Description: "The amount of memory to give the VM, in MB.",
 						},
-						"cpus": &schema.Schema{
-							Type:        schema.TypeInt,
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
-							Description: "The number of CPUs to give the VM.",
+							Description: "A custom name for the VM within VirtualBox's GUI app.",
 						},
 					},
 				},
