@@ -20,5 +20,12 @@ resource "vagrant_vm" "example_networks" {
 resource "vagrant_vm" "example_virtualbox_provider" {
   box = "coreos-stable"
 
-  virtualbox_provider {}
+  virtualbox_provider {
+    cpus = 4
+    memory = 1024
+
+    customize {
+      arguments = ["modifyvm", "id", "--cpuexecutioncap", "50"]
+    }
+  }
 }

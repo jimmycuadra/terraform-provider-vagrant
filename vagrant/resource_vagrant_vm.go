@@ -128,6 +128,27 @@ func resourceVagrantVm() *schema.Resource {
 							Computed:    true,
 							Description: "The number of CPUs to give the VM.",
 						},
+						"customize": &schema.Schema{
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Computed:    true,
+							Description: "A call to customize the VM just before it is booted.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"arguments": &schema.Schema{
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "The list of arguments for the customization command.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+							Set: func(v interface{}) int {
+								return 0
+							},
+						},
 						"gui": &schema.Schema{
 							Type:        schema.TypeBool,
 							Optional:    true,
